@@ -72,7 +72,7 @@ func (r Routes) Lookup(path string) (string, map[string]string) {
 
 		meta := make(map[string]string, len(subMatchNames))
 
-		for j := 1; j < len(subMatchNames); j += 1 {
+		for j := 1; j < len(subMatchNames); j++ {
 			meta[subMatchNames[j]] = subMatchValues[j]
 		}
 
