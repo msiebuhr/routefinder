@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func ExampleLookup() {
+func Example() {
 	r, _ := NewRoutefinder("/shop/:item", "/shop/:item/rate", "/shop/:item/buy")
 
 	fmt.Println(r.Lookup("/shop/gopher/rate"))
