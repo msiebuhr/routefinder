@@ -13,6 +13,8 @@ type Routes []struct {
 	re   regexp.Regexp
 }
 
+// Constructs a Route-table from the given templates. Everything in the
+// template from a : to the following / is considered a variable.
 func NewRoutefinder(templates ...string) (Routes, error) {
 	converterRegex, err := regexp.Compile(":[^/]+")
 
@@ -48,6 +50,9 @@ func NewRoutefinder(templates ...string) (Routes, error) {
 	return routes, nil
 }
 
+// Look up the given path in the available Routes, first-match-wins.  A match
+// will return the original template string along with a map of the parsed-out
+// variables. Lookup returns empty values, if no match is found.
 func (r Routes) Lookup(path string) (string, map[string]string) {
 	// Dump any query string
 	normalizedPath := strings.SplitN(path, "?", 1)[0]
