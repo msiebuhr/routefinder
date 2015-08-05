@@ -1,8 +1,16 @@
 package routefinder
 
 import (
+	"fmt"
 	"testing"
 )
+
+func ExampleLookup() {
+	r, _ := NewRoutefinder("/shop/:item", "/shop/:item/rate", "/shop/:item/buy")
+
+	fmt.Println(r.Lookup("/shop/gopher/rate"))
+	// Output: /shop/:item/rate map[item:gopher]
+}
 
 func TestBasic(t *testing.T) {
 	r, err := NewRoutefinder("/foo/:id/a", "/foo/:id/b", "/foo/:id")
