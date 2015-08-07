@@ -1,6 +1,7 @@
 package routefinder
 
 import (
+	"flag"
 	"fmt"
 	"testing"
 )
@@ -67,4 +68,40 @@ func TestStringer(t *testing.T) {
 	if r.String() != "/:a,/:b" {
 		t.Errorf("Expected to get `/:a,/:b`, got %s", r.String())
 	}
+}
+
+func TestSet(t *testing.T) {
+	r, _ := NewRoutefinder()
+
+	r.Set("/a,/a/:id")
+
+	if r.String() != "/a,/a/:id" {
+		t.Errorf("Expected `/a,/a/:id`, got `%s`", r.String())
+	}
+
+	templ, params := r.Lookup("/a/123")
+	if data, ok := params["id"]; templ != "/a/:id" && !ok && data == "123" {
+		t.Errorf("Expected `/a/:id` and id=123, got `%s` and `%v`", templ, params)
+	}
+
+	r.Set("/foo/:bar")
+
+	if r.String() != "/a,/a/:id,/foo/:bar" {
+		t.Errorf("Expected `/a,/a/:id,/foo/:bar`, got `%s`", r.String())
+	}
+}
+
+func ExampleSet() {
+	// Create a Routefinder and set it up as a Var-flag
+	var routes Routes
+	flag.Var(&routes, "routes", "comma-separated list of intervals")
+
+	// Pretend the user added -routes "/u,/u/:id"
+	flag.Set("routes", "/u,/u/:id")
+
+	// Parse the flags and try it out with a small example
+	flag.Parse()
+	route, id := routes.Lookup("/u/123")
+	fmt.Println(route, id)
+	// Output: /u/:id map[id:123]
 }

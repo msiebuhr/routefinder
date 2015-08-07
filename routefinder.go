@@ -109,3 +109,15 @@ func (r Routes) String() string {
 
 	return strings.Join(strs, ",")
 }
+
+// Set appends new routes, by parsing comma-delimited sets of routes. Used to
+// implement flags.Value
+func (r *Routes) Set(in string) error {
+	for _, template := range strings.Split(in, ",") {
+		if err := r.Add(template); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
