@@ -8,6 +8,16 @@ import (
 	"strings"
 )
 
+var converterRegex *regexp.Regexp
+
+func init() {
+	var err error
+	converterRegex, err = regexp.Compile(":[^/]+")
+	if err != nil {
+		panic(err)
+	}
+}
+
 // Routes represents an ordered table of URL-like route templates, allowing
 // reverse lookup of these into the original template along with parsed-out
 // variables.
@@ -19,38 +29,46 @@ type Routes []struct {
 // NewRoutefinder constructs a Route-table from the given templates. Everything
 // in the template from a : to the following / is considered a variable.
 func NewRoutefinder(templates ...string) (Routes, error) {
-	converterRegex, err := regexp.Compile(":[^/]+")
-
-	if err != nil {
-		return Routes{}, err
-	}
-
 	// Regex placeholders out of the template URLs
-	routes := make(Routes, len(templates))
+	routes := make(Routes, 0, len(templates))
 
-	for i, template := range templates {
-		// Quote slashes &c.
-		withQuotedMeta := regexp.QuoteMeta(template)
-
-		// Switch out :[^\/]+ for capture groups
-		withQuotedMeta = converterRegex.ReplaceAllStringFunc(withQuotedMeta, func(group string) string {
-			return fmt.Sprintf("(?P<%s>[^/]+)", group[1:])
-		})
-
-		// Add start and end guards
-		withQuotedMeta = fmt.Sprintf("^%s$", withQuotedMeta)
-
-		re, err := regexp.Compile(withQuotedMeta)
-
+	for _, template := range templates {
+		err := routes.Add(template)
 		if err != nil {
 			return Routes{}, err
 		}
-
-		routes[i].name = template
-		routes[i].re = *re
 	}
 
 	return routes, nil
+}
+
+func (r *Routes) Add(template string) error {
+	// Quote slashes &c.
+	withQuotedMeta := regexp.QuoteMeta(template)
+
+	// Switch out :[^\/]+ for capture groups
+	withQuotedMeta = converterRegex.ReplaceAllStringFunc(withQuotedMeta, func(group string) string {
+		return fmt.Sprintf("(?P<%s>[^/]+)", group[1:])
+	})
+
+	// Add start and end guards
+	withQuotedMeta = fmt.Sprintf("^%s$", withQuotedMeta)
+
+	re, err := regexp.Compile(withQuotedMeta)
+
+	if err != nil {
+		return err
+	}
+
+	*r = append(*r, struct {
+		name string
+		re   regexp.Regexp
+	}{
+		name: template,
+		re:   *re,
+	})
+
+	return nil
 }
 
 // Lookup the given path in the available Routes, first-match-wins.  A match
