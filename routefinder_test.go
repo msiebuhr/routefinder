@@ -60,3 +60,11 @@ func TestPrecedence(t *testing.T) {
 		t.Errorf("Expected to get route /:a, got %s", templ)
 	}
 }
+
+func TestStringer(t *testing.T) {
+	r, _ := NewRoutefinder("/:a", "/:b")
+
+	if r.String() != "/:a,/:b" {
+		t.Errorf("Expected to get `/:a,/:b`, got %s", r.String())
+	}
+}

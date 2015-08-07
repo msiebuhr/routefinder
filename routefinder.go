@@ -81,3 +81,13 @@ func (r Routes) Lookup(path string) (string, map[string]string) {
 
 	return "", map[string]string{}
 }
+
+func (r Routes) String() string {
+	strs := make([]string, len(r))
+
+	for i, str := range r {
+		strs[i] = str.name
+	}
+
+	return strings.Join(strs, ",")
+}
