@@ -93,7 +93,7 @@ func TestSet(t *testing.T) {
 
 func ExampleSet() {
 	// Create a Routefinder and set it up as a Var-flag
-	var routes Routes
+	var routes Routefinder
 	flag.Var(&routes, "routes", "comma-separated list of intervals")
 
 	// Pretend the user added -routes "/u,/u/:id"

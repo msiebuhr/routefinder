@@ -18,31 +18,31 @@ func init() {
 	}
 }
 
-// Routes represents an ordered table of URL-like route templates, allowing
+// Routefinder represents an ordered table of URL-like route templates, allowing
 // reverse lookup of these into the original template along with parsed-out
 // variables.
-type Routes []struct {
+type Routefinder []struct {
 	name string
 	re   regexp.Regexp
 }
 
 // NewRoutefinder constructs a Route-table from the given templates. Everything
 // in the template from a : to the following / is considered a variable.
-func NewRoutefinder(templates ...string) (Routes, error) {
+func NewRoutefinder(templates ...string) (Routefinder, error) {
 	// Regex placeholders out of the template URLs
-	routes := make(Routes, 0, len(templates))
+	routes := make(Routefinder, 0, len(templates))
 
 	for _, template := range templates {
 		err := routes.Add(template)
 		if err != nil {
-			return Routes{}, err
+			return Routefinder{}, err
 		}
 	}
 
 	return routes, nil
 }
 
-func (r *Routes) Add(template string) error {
+func (r *Routefinder) Add(template string) error {
 	// Quote slashes &c.
 	withQuotedMeta := regexp.QuoteMeta(template)
 
@@ -71,10 +71,10 @@ func (r *Routes) Add(template string) error {
 	return nil
 }
 
-// Lookup the given path in the available Routes, first-match-wins.  A match
+// Lookup the given path in the available routes, first-match-wins.  A match
 // will return the original template string along with a map of the parsed-out
 // variables. Lookup returns empty values, if no match is found.
-func (r Routes) Lookup(path string) (string, map[string]string) {
+func (r Routefinder) Lookup(path string) (string, map[string]string) {
 	// Dump any query string
 	normalizedPath := strings.SplitN(path, "?", 1)[0]
 
@@ -100,7 +100,7 @@ func (r Routes) Lookup(path string) (string, map[string]string) {
 	return "", map[string]string{}
 }
 
-func (r Routes) String() string {
+func (r Routefinder) String() string {
 	strs := make([]string, len(r))
 
 	for i, str := range r {
@@ -112,7 +112,7 @@ func (r Routes) String() string {
 
 // Set appends new routes, by parsing comma-delimited sets of routes. Used to
 // implement flags.Value
-func (r *Routes) Set(in string) error {
+func (r *Routefinder) Set(in string) error {
 	for _, template := range strings.Split(in, ",") {
 		if err := r.Add(template); err != nil {
 			return err
