@@ -91,7 +91,7 @@ func TestSet(t *testing.T) {
 	}
 }
 
-func ExampleSet() {
+func ExampleLookup_Set() {
 	// Create a Routefinder and set it up as a Var-flag
 	var routes Routefinder
 	flag.Var(&routes, "routes", "comma-separated list of intervals")
