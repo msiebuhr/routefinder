@@ -105,3 +105,27 @@ func ExampleSet() {
 	fmt.Println(route, id)
 	// Output: /u/:id map[id:123]
 }
+
+func BenchmarkLookupLast(b *testing.B) {
+	r, _ := NewRoutefinder("/item/:id", "/item/:id/share/:network", "/item/:id/buy")
+
+	for i := 0; i < b.N; i++ {
+		r.Lookup("/item/123/buy")
+	}
+}
+
+func BenchmarkLookupHitFirst(b *testing.B) {
+	r, _ := NewRoutefinder("/item/:id", "/item/:id/share/:network", "/item/:id/buy")
+
+	for i := 0; i < b.N; i++ {
+		r.Lookup("/item/123")
+	}
+}
+
+func BenchmarkLookupMiss(b *testing.B) {
+	r, _ := NewRoutefinder("/item/:id", "/item/:id/share/:network", "/item/:id/buy")
+
+	for i := 0; i < b.N; i++ {
+		r.Lookup("/")
+	}
+}
