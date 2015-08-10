@@ -22,8 +22,10 @@ func init() {
 // reverse lookup of these into the original template along with parsed-out
 // variables.
 type Routefinder []struct {
-	name string
-	re   regexp.Regexp
+	name    string
+	re      regexp.Regexp
+	prefix  string
+	hasVars bool
 }
 
 // NewRoutefinder constructs a Route-table from the given templates. Everything
@@ -60,12 +62,18 @@ func (r *Routefinder) Add(template string) error {
 		return err
 	}
 
+	prefix, whole := re.LiteralPrefix()
+
 	*r = append(*r, struct {
-		name string
-		re   regexp.Regexp
+		name    string
+		re      regexp.Regexp
+		prefix  string
+		hasVars bool
 	}{
-		name: template,
-		re:   *re,
+		name:    template,
+		re:      *re,
+		prefix:  prefix,
+		hasVars: !whole,
 	})
 
 	return nil
@@ -80,6 +88,16 @@ func (r Routefinder) Lookup(path string) (string, map[string]string) {
 
 	// Check key against regex'es
 	for _, template := range r {
+		// Get the prefix of the regex and test it
+		if !strings.HasPrefix(normalizedPath, template.prefix) {
+			continue
+		}
+
+		// Is the prefix == the whole thing? Then a match == win
+		if !template.hasVars && normalizedPath == template.name {
+			return template.name, map[string]string{}
+		}
+
 		// Check key against regexes
 		if !template.re.MatchString(normalizedPath) {
 			continue

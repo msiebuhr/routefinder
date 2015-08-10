@@ -14,7 +14,7 @@ func Example() {
 }
 
 func TestBasic(t *testing.T) {
-	r, err := NewRoutefinder("/foo/:id/a", "/foo/:id/b", "/foo/:id")
+	r, err := NewRoutefinder("/foo/:id/a", "/foo/:id/b", "/foo/:id", "/foo")
 
 	if err != nil {
 		t.Fatal("Unexpected error creating routes", err)
@@ -29,10 +29,21 @@ func TestBasic(t *testing.T) {
 			p:  "/",
 			t:  "",
 			kv: map[string]string{},
-		}, {
+		},
+		{
 			p:  "/foo/foo/a",
 			t:  "/foo/:id/a",
 			kv: map[string]string{"id": "foo"},
+		},
+		{
+			p:  "/foo",
+			t:  "/foo",
+			kv: map[string]string{},
+		},
+		{
+			p:  "/fooo",
+			t:  "",
+			kv: map[string]string{},
 		},
 	}
 
@@ -123,9 +134,9 @@ func BenchmarkLookupHitFirst(b *testing.B) {
 }
 
 func BenchmarkLookupMiss(b *testing.B) {
-	r, _ := NewRoutefinder("/item/:id", "/item/:id/share/:network", "/item/:id/buy")
+	r, _ := NewRoutefinder("/item/:id", "/item/:id/share/:network", "/item/:id/buy", "/o")
 
 	for i := 0; i < b.N; i++ {
-		r.Lookup("/")
+		r.Lookup("/other")
 	}
 }
