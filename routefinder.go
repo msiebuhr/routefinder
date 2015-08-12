@@ -45,6 +45,10 @@ func NewRoutefinder(templates ...string) (Routefinder, error) {
 }
 
 func (r *Routefinder) Add(template string) error {
+	if template == "" {
+		return nil
+	}
+
 	// Quote slashes &c.
 	withQuotedMeta := regexp.QuoteMeta(template)
 

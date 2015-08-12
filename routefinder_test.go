@@ -84,8 +84,14 @@ func TestStringer(t *testing.T) {
 func TestSet(t *testing.T) {
 	r, _ := NewRoutefinder()
 
-	r.Set("/a,/a/:id")
+	// Adding empty things shouldn't change a thing
+	r.Set("")
+	r.Set("")
+	if r.String() != "" {
+		t.Errorf("Expected ``, got `%s`", r.String())
+	}
 
+	r.Set("/a,/a/:id")
 	if r.String() != "/a,/a/:id" {
 		t.Errorf("Expected `/a,/a/:id`, got `%s`", r.String())
 	}
@@ -96,7 +102,6 @@ func TestSet(t *testing.T) {
 	}
 
 	r.Set("/foo/:bar")
-
 	if r.String() != "/a,/a/:id,/foo/:bar" {
 		t.Errorf("Expected `/a,/a/:id,/foo/:bar`, got `%s`", r.String())
 	}
