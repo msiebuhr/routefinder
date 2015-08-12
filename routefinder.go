@@ -57,6 +57,10 @@ func (r *Routefinder) Add(template string) error {
 		return fmt.Sprintf("(?P<%s>[^/]+)", group[1:])
 	})
 
+	if strings.HasSuffix(withQuotedMeta, "/\\.\\.\\.") {
+		withQuotedMeta = withQuotedMeta[:len(withQuotedMeta)-7] + "\\/(?P<__TRAILING__>.*)"
+	}
+
 	// Add start and end guards
 	withQuotedMeta = fmt.Sprintf("^%s$", withQuotedMeta)
 
@@ -116,7 +120,15 @@ func (r Routefinder) Lookup(path string) (string, map[string]string) {
 			meta[subMatchNames[j]] = subMatchValues[j]
 		}
 
-		return template.name, meta
+		templateName := template.name
+
+		// If the template ends with /... and we extracted __TRAILING__, transplant it back
+		if trailing, ok := meta["__TRAILING__"]; ok && strings.HasSuffix(template.name, "/...") {
+			templateName = templateName[:len(templateName)-3] + trailing
+			delete(meta, "__TRAILING__")
+		}
+
+		return templateName, meta
 	}
 
 	return "", map[string]string{}
