@@ -14,7 +14,7 @@ func Example() {
 }
 
 func TestBasic(t *testing.T) {
-	r, err := NewRoutefinder("/foo/:id/...", "/foo/:id", "/foo", "/bar/...")
+	r, err := NewRoutefinder("/foo/:id/...", "/foo/:id", "/foo", "/bar/...", "/discard-trail/:foo/???")
 
 	if err != nil {
 		t.Fatal("Unexpected error creating routes", err)
@@ -55,20 +55,37 @@ func TestBasic(t *testing.T) {
 			t:  "/bar/",
 			kv: map[string]string{},
 		},
-		{
-			p:  "/foo?abc=def",
-			t:  "/foo",
-			kv: map[string]string{},
-		},
-
 		/* Would love to get this case in, but it does look to cause some
-		        * corner-cases that I'm too tired to reason about for now...
+		 * corner-cases that I'm too tired to reason about for now...
 		        {
 					p:  "/bar",
 					t:  "/bar",
 					kv: map[string]string{},
 				},
 		*/
+
+		{
+			p:  "/foo?abc=def",
+			t:  "/foo",
+			kv: map[string]string{},
+		},
+
+		// Discard ???-paths
+		{
+			p:  "/discard-trail/123",
+			t:  "/discard-trail/:foo/???",
+			kv: map[string]string{"foo": "123"},
+		},
+		{
+			p:  "/discard-trail/123/",
+			t:  "/discard-trail/:foo/???",
+			kv: map[string]string{"foo": "123"},
+		},
+		{
+			p:  "/discard-trail/123/a/b/c",
+			t:  "/discard-trail/:foo/???",
+			kv: map[string]string{"foo": "123"},
+		},
 	}
 
 	for _, tt := range tests {
