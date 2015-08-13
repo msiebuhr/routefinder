@@ -92,7 +92,7 @@ func (r *Routefinder) Add(template string) error {
 // variables. Lookup returns empty values, if no match is found.
 func (r Routefinder) Lookup(path string) (string, map[string]string) {
 	// Dump any query string
-	normalizedPath := strings.SplitN(path, "?", 1)[0]
+	normalizedPath := strings.SplitN(path, "?", 2)[0]
 
 	// Check key against regex'es
 	for _, template := range r {

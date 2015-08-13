@@ -55,6 +55,12 @@ func TestBasic(t *testing.T) {
 			t:  "/bar/",
 			kv: map[string]string{},
 		},
+		{
+			p:  "/foo?abc=def",
+			t:  "/foo",
+			kv: map[string]string{},
+		},
+
 		/* Would love to get this case in, but it does look to cause some
 		        * corner-cases that I'm too tired to reason about for now...
 		        {
@@ -66,11 +72,10 @@ func TestBasic(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-
 		templ, meta := r.Lookup(tt.p)
 
 		if templ != tt.t {
-			t.Errorf("Expected to get route `%s`, got `%s`", tt.t, templ)
+			t.Errorf("Expected to get route `%s` from `%s`, got `%s`", tt.t, tt.p, templ)
 		}
 
 		for key, value := range tt.kv {
