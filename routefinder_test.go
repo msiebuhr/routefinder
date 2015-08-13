@@ -7,10 +7,47 @@ import (
 )
 
 func Example() {
-	r, _ := NewRoutefinder("/shop/:item", "/shop/:item/rate", "/shop/:item/buy")
+	r, _ := NewRoutefinder(
+		// Plain, static paths.
+		"/",
+		"/welcome",
 
-	fmt.Println(r.Lookup("/shop/gopher/rate"))
-	// Output: /shop/:item/rate map[item:gopher]
+		// Parse out a variable from the name.
+		"/pay/:cardName",
+
+		// Match all paths under /shop/:item/ and include the path as if the
+		// rule for it was written out here.
+		"/shop/:item/...",
+
+		// The above rule doesn't catch `/shop/:item` (without the slash), so
+		// we need to add that manually for now...
+		"/shop/:item/...",
+
+		// Match everything under /static, but ignore the trailing path.
+		"/static/???",
+	)
+
+	// Plain path
+	paths := []string{
+		"/",
+		"/returns-nothing",
+		"/pay/visa",
+		"/shop/gopher",
+		"/shop/gopher/thumbnail",
+		"/static/141029384.css",
+	}
+
+	for _, url := range paths {
+		path, meta := r.Lookup(url)
+		fmt.Printf("%s -> %s %+v\n", url, path, meta)
+	}
+
+	// / -> / map[]
+	// /returns-nothing ->  map[]
+	// /pay/visa -> /pay/:cardName map[cardName:visa]
+	// /shop/gopher -> /shop/:item map[]
+	// /shop/gopher/thumbnail -> /shop/:item/thumbnail map[item:gopher]
+	// /static/141029384.css -> /static/??? map[]
 }
 
 func TestBasic(t *testing.T) {
