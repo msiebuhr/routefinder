@@ -1,6 +1,6 @@
-package routefinder
-
 // Package routefinder implements functions for decomposing known dynamic URLs into templates.
+
+package routefinder
 
 import (
 	"fmt"
